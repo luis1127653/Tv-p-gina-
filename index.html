@@ -1,0 +1,147 @@
+<script>
+
+const canales = [
+
+{
+nombre:"Cali TV",
+categoria:"Noticias",
+logo:"https://via.placeholder.com/300x180?text=Cali+TV",
+url:"https://5ab772334c39c.streamlock.net/live-calitv/calitv1/playlist.m3u8"
+},
+
+{
+nombre:"Canal Institucional",
+categoria:"Noticias",
+logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Canal_Institucional_logo.svg/512px-Canal_Institucional_logo.svg.png",
+url:"https://streaming.rtvc.gov.co/TV_CanalInstitucional_live/smil:live.smil/playlist.m3u8"
+},
+
+{
+nombre:"Señal Colombia",
+categoria:"Entretenimiento",
+logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Senal_Colombia_logo.svg/512px-Senal_Colombia_logo.svg.png",
+url:"https://streaming.rtvc.gov.co/TV_Senal_Colombia_live/smil:live.smil/playlist.m3u8"
+},
+
+{
+nombre:"Canal 1",
+categoria:"Entretenimiento",
+logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Canal_1_Colombia_logo.svg/512px-Canal_1_Colombia_logo.svg.png",
+url:"https://mdstrm.com/live-stream-playlist/5a5e1c2568b1910913db5fe2.m3u8"
+},
+
+{
+nombre:"Canal Capital",
+categoria:"Noticias",
+logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Canal_Capital_logo.svg/512px-Canal_Capital_logo.svg.png",
+url:"https://mdstrm.com/live-stream-playlist/6952dc88cb62083467eb6ab4.m3u8"
+},
+
+{
+nombre:"Blu Radio",
+categoria:"Radio",
+logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Blu_Radio_logo.svg/512px-Blu_Radio_logo.svg.png",
+url:"https://mdstrm.com/live-stream-playlist/58d1921a72e2b22e2905e493.m3u8"
+}
+
+];
+
+const lista = document.getElementById("lista");
+const video = document.getElementById("video");
+
+function renderCanales(datos){
+
+lista.innerHTML="";
+
+datos.forEach(canal=>{
+
+const card=document.createElement("div");
+
+card.className="card";
+
+card.innerHTML=`
+<img src="${canal.logo}" loading="lazy">
+<h3>${canal.nombre}</h3>
+<p>${canal.categoria}</p>
+`;
+
+card.onclick=()=>cargarCanal(canal);
+
+lista.appendChild(card);
+
+});
+
+}
+
+function cargarCanal(canal){
+
+localStorage.setItem(
+"ultimoCanal",
+JSON.stringify(canal)
+);
+
+if(canal.categoria==="Radio"){
+video.poster=canal.logo;
+}
+
+if(Hls.isSupported()){
+
+const hls=new Hls();
+
+hls.loadSource(canal.url);
+
+hls.attachMedia(video);
+
+}else{
+
+video.src=canal.url;
+
+}
+
+}
+
+function buscarCanal(texto){
+
+texto=texto.toLowerCase();
+
+renderCanales(
+canales.filter(
+c=>c.nombre.toLowerCase().includes(texto)
+)
+);
+
+}
+
+function filtrar(cat){
+
+if(cat==="Todos"){
+renderCanales(canales);
+return;
+}
+
+renderCanales(
+canales.filter(
+c=>c.categoria===cat
+)
+);
+
+}
+
+window.onload=()=>{
+
+renderCanales(canales);
+
+let ultimo=
+localStorage.getItem("ultimoCanal");
+
+if(ultimo){
+
+cargarCanal(
+JSON.parse(ultimo)
+);
+
+}
+
+};
+
+</script>
