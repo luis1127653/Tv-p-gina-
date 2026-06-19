@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TV Colombia Online</title>
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0">
+
+<title>
+TV Colombia Online
+</title>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <style>
+
 *{
 margin:0;
 padding:0;
@@ -26,32 +34,34 @@ padding:15px;
 display:flex;
 justify-content:space-between;
 align-items:center;
+flex-wrap:wrap;
+gap:10px;
 }
 
 header h1{
 font-size:22px;
 }
 
-.search{
+#buscar{
 padding:10px;
 border:none;
 border-radius:8px;
 width:250px;
 }
 
-.player-container{
+.player{
 padding:20px;
 }
 
 video{
 width:100%;
-max-width:1100px;
+max-width:1200px;
 background:black;
 border-radius:12px;
 }
 
 .categorias{
-padding:10px 20px;
+padding:15px;
 display:flex;
 gap:10px;
 flex-wrap:wrap;
@@ -61,9 +71,9 @@ flex-wrap:wrap;
 padding:10px 15px;
 border:none;
 border-radius:8px;
-cursor:pointer;
 background:#1e293b;
 color:white;
+cursor:pointer;
 }
 
 .categorias button:hover{
@@ -72,7 +82,8 @@ background:#334155;
 
 .grid{
 display:grid;
-grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+grid-template-columns:
+repeat(auto-fill,minmax(220px,1fr));
 gap:15px;
 padding:20px;
 }
@@ -92,14 +103,12 @@ transform:scale(1.05);
 .card img{
 width:100%;
 height:140px;
-object-fit:contain;
-background:white;
-padding:10px;
+object-fit:cover;
+background:#111827;
 }
 
 .card h3{
 padding:10px;
-font-size:16px;
 }
 
 .card p{
@@ -109,93 +118,143 @@ color:#cbd5e1;
 
 footer{
 background:#111827;
-padding:15px;
+padding:20px;
 text-align:center;
-margin-top:20px;
 }
+
 </style>
+
 </head>
 
 <body>
 
 <header>
-<h1>📺 TV Colombia Online</h1>
+
+<h1>
+📺 TV Colombia Online
+</h1>
 
 <input
 type="text"
-class="search"
+id="buscar"
 placeholder="Buscar canal..."
-onkeyup="buscarCanal(this.value)"
 >
+
 </header>
 
-<div class="player-container">
-<video id="video" controls autoplay></video>
+<div class="player">
+
+<video
+id="video"
+controls
+autoplay
+></video>
+
 </div>
 
 <div class="categorias">
-<button onclick="filtrar('Todos')">Todos</button>
-<button onclick="filtrar('Noticias')">Noticias</button>
-<button onclick="filtrar('Entretenimiento')">Entretenimiento</button>
-<button onclick="filtrar('Radio')">Radio</button>
+
+<button onclick="mostrarTodos()">
+Todos
+</button>
+
+<button onclick="filtrar('Noticias')">
+Noticias
+</button>
+
+<button onclick="filtrar('Entretenimiento')">
+Entretenimiento
+</button>
+
+<button onclick="filtrar('Radio')">
+Radio
+</button>
+
 </div>
 
-<div id="lista" class="grid"></div>
+<div
+id="lista"
+class="grid"
+></div>
 
 <footer>
+
 TV Colombia Online
+
 </footer>
 
 <script>
+
+const logoCaliTV =
+"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='180'><rect width='100%' height='100%' fill='%230f172a'/><text x='50%' y='50%' fill='white' font-size='28' text-anchor='middle' dominant-baseline='middle'>Cali TV</text></svg>";
+
+const logoInstitucional =
+"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='180'><rect width='100%' height='100%' fill='%230f172a'/><text x='50%' y='50%' fill='white' font-size='18' text-anchor='middle' dominant-baseline='middle'>Canal Institucional</text></svg>";
+
+const logoSenal =
+"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='180'><rect width='100%' height='100%' fill='%230f172a'/><text x='50%' y='50%' fill='white' font-size='22' text-anchor='middle' dominant-baseline='middle'>Señal Colombia</text></svg>";const logoCanal1 =
+"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='180'><rect width='100%' height='100%' fill='%230f172a'/><text x='50%' y='50%' fill='white' font-size='30' text-anchor='middle' dominant-baseline='middle'>Canal 1</text></svg>";
+
+const logoCapital =
+"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='180'><rect width='100%' height='100%' fill='%230f172a'/><text x='50%' y='50%' fill='white' font-size='24' text-anchor='middle' dominant-baseline='middle'>Canal Capital</text></svg>";
+
+const logoBlu =
+"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='180'><rect width='100%' height='100%' fill='%230f172a'/><text x='50%' y='50%' fill='white' font-size='28' text-anchor='middle' dominant-baseline='middle'>Blu Radio</text></svg>";
 
 const canales = [
 
 {
 nombre:"Cali TV",
 categoria:"Noticias",
-logo:"https://via.placeholder.com/300x180?text=Cali+TV",
+logo:logoCaliTV,
 url:"https://5ab772334c39c.streamlock.net/live-calitv/calitv1/playlist.m3u8"
 },
 
 {
 nombre:"Canal Institucional",
 categoria:"Noticias",
-logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Canal_Institucional_logo.svg/512px-Canal_Institucional_logo.svg.png",
+logo:logoInstitucional,
 url:"https://streaming.rtvc.gov.co/TV_CanalInstitucional_live/smil:live.smil/playlist.m3u8"
 },
 
 {
 nombre:"Señal Colombia",
 categoria:"Entretenimiento",
-logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Senal_Colombia_logo.svg/512px-Senal_Colombia_logo.svg.png",
+logo:logoSenal,
 url:"https://streaming.rtvc.gov.co/TV_Senal_Colombia_live/smil:live.smil/playlist.m3u8"
 },
 
 {
 nombre:"Canal 1",
 categoria:"Entretenimiento",
-logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Canal_1_Colombia_logo.svg/512px-Canal_1_Colombia_logo.svg.png",
+logo:logoCanal1,
 url:"https://mdstrm.com/live-stream-playlist/5a5e1c2568b1910913db5fe2.m3u8"
 },
 
 {
 nombre:"Canal Capital",
 categoria:"Noticias",
-logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Canal_Capital_logo.svg/512px-Canal_Capital_logo.svg.png",
+logo:logoCapital,
 url:"https://mdstrm.com/live-stream-playlist/6952dc88cb62083467eb6ab4.m3u8"
 },
 
 {
 nombre:"Blu Radio",
 categoria:"Radio",
-logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Blu_Radio_logo.svg/512px-Blu_Radio_logo.svg.png",
+logo:logoBlu,
 url:"https://mdstrm.com/live-stream-playlist/58d1921a72e2b22e2905e493.m3u8"
 }
 
 ];
 
-const lista = document.getElementById("lista");
-const video = document.getElementById("video");
+const lista =
+document.getElementById("lista");
+
+const video =
+document.getElementById("video");
+
+const buscar =
+document.getElementById("buscar");
 
 function cargarCanal(url){
 
@@ -207,74 +266,107 @@ hls.loadSource(url);
 
 hls.attachMedia(video);
 
-}else if(video.canPlayType("application/vnd.apple.mpegurl")){
+}else if(
+video.canPlayType(
+"application/vnd.apple.mpegurl"
+)
+){
 
 video.src = url;
 
 }else{
 
-alert("Tu navegador no soporta HLS.");
+alert(
+"Tu navegador no soporta HLS"
+);
 
 }
 
-}
+}function render(canalesMostrar){
 
-function renderCanales(datos){
+lista.innerHTML = "";
 
-lista.innerHTML="";
-
-datos.forEach(canal=>{
+canalesMostrar.forEach(canal=>{
 
 lista.innerHTML += `
-<div class="card" onclick="cargarCanal('${canal.url}')">
 
-<img src="${canal.logo}"
-onerror="this.src='https://via.placeholder.com/300x180?text=Canal'">
+<div
+class="card"
+onclick="cargarCanal('${canal.url}')"
+>
 
-<h3>${canal.nombre}</h3>
+<img
+src="${canal.logo}"
+alt="${canal.nombre}"
+>
 
-<p>${canal.categoria}</p>
+<h3>
+${canal.nombre}
+</h3>
+
+<p>
+${canal.categoria}
+</p>
 
 </div>
+
 `;
 
 });
 
 }
 
-function buscarCanal(texto){
-
-texto = texto.toLowerCase();
-
-renderCanales(
-canales.filter(
-c => c.nombre.toLowerCase().includes(texto)
-)
-);
-
-}
-
 function filtrar(categoria){
 
-if(categoria==="Todos"){
+render(
 
-renderCanales(canales);
-
-}else{
-
-renderCanales(
 canales.filter(
-c => c.categoria===categoria
+
+c => c.categoria === categoria
+
 )
+
 );
 
 }
 
+function mostrarTodos(){
+
+render(canales);
+
 }
 
-renderCanales(canales);
+buscar.addEventListener(
+
+"input",
+
+()=>{
+
+const texto =
+buscar.value.toLowerCase();
+
+render(
+
+canales.filter(
+
+canal =>
+
+canal.nombre
+.toLowerCase()
+.includes(texto)
+
+)
+
+);
+
+}
+
+);
+
+render(canales);
 
 </script>
 
 </body>
+
 </html>
