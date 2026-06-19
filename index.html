@@ -1,4 +1,151 @@
- html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TV Colombia Online</title>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#0f172a;
+color:white;
+}
+
+header{
+background:#111827;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+header h1{
+font-size:22px;
+}
+
+.search{
+padding:10px;
+border:none;
+border-radius:8px;
+width:250px;
+}
+
+.player-container{
+padding:20px;
+}
+
+video{
+width:100%;
+max-width:1100px;
+background:black;
+border-radius:12px;
+}
+
+.categorias{
+padding:10px 20px;
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
+
+.categorias button{
+padding:10px 15px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+background:#1e293b;
+color:white;
+}
+
+.categorias button:hover{
+background:#334155;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+gap:15px;
+padding:20px;
+}
+
+.card{
+background:#1e293b;
+border-radius:12px;
+overflow:hidden;
+cursor:pointer;
+transition:.3s;
+}
+
+.card:hover{
+transform:scale(1.05);
+}
+
+.card img{
+width:100%;
+height:140px;
+object-fit:contain;
+background:white;
+padding:10px;
+}
+
+.card h3{
+padding:10px;
+font-size:16px;
+}
+
+.card p{
+padding:0 10px 10px;
+color:#cbd5e1;
+}
+
+footer{
+background:#111827;
+padding:15px;
+text-align:center;
+margin-top:20px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>📺 TV Colombia Online</h1>
+
+<input
+type="text"
+class="search"
+placeholder="Buscar canal..."
+onkeyup="buscarCanal(this.value)"
+>
+</header>
+
+<div class="player-container">
+<video id="video" controls autoplay></video>
+</div>
+
+<div class="categorias">
+<button onclick="filtrar('Todos')">Todos</button>
+<button onclick="filtrar('Noticias')">Noticias</button>
+<button onclick="filtrar('Entretenimiento')">Entretenimiento</button>
+<button onclick="filtrar('Radio')">Radio</button>
+</div>
+
+<div id="lista" class="grid"></div>
+
+<footer>
+TV Colombia Online
+</footer>
+
 <script>
 
 const canales = [
@@ -50,99 +197,84 @@ url:"https://mdstrm.com/live-stream-playlist/58d1921a72e2b22e2905e493.m3u8"
 const lista = document.getElementById("lista");
 const video = document.getElementById("video");
 
+function cargarCanal(url){
+
+if(Hls.isSupported()){
+
+const hls = new Hls();
+
+hls.loadSource(url);
+
+hls.attachMedia(video);
+
+}else if(video.canPlayType("application/vnd.apple.mpegurl")){
+
+video.src = url;
+
+}else{
+
+alert("Tu navegador no soporta HLS.");
+
+}
+
+}
+
 function renderCanales(datos){
 
 lista.innerHTML="";
 
 datos.forEach(canal=>{
 
-const card=document.createElement("div");
+lista.innerHTML += `
+<div class="card" onclick="cargarCanal('${canal.url}')">
 
-card.className="card";
+<img src="${canal.logo}"
+onerror="this.src='https://via.placeholder.com/300x180?text=Canal'">
 
-card.innerHTML=`
-<img src="${canal.logo}" loading="lazy">
 <h3>${canal.nombre}</h3>
+
 <p>${canal.categoria}</p>
+
+</div>
 `;
-
-card.onclick=()=>cargarCanal(canal);
-
-lista.appendChild(card);
 
 });
 
 }
 
-function cargarCanal(canal){
+function buscarCanal(texto){
 
-localStorage.setItem(
-"ultimoCanal",
-JSON.stringify(canal)
+texto = texto.toLowerCase();
+
+renderCanales(
+canales.filter(
+c => c.nombre.toLowerCase().includes(texto)
+)
 );
 
-if(canal.categoria==="Radio"){
-video.poster=canal.logo;
 }
 
-if(Hls.isSupported()){
+function filtrar(categoria){
 
-const hls=new Hls();
+if(categoria==="Todos"){
 
-hls.loadSource(canal.url);
-
-hls.attachMedia(video);
+renderCanales(canales);
 
 }else{
 
-video.src=canal.url;
-
-}
-
-}
-
-function buscarCanal(texto){
-
-texto=texto.toLowerCase();
-
 renderCanales(
 canales.filter(
-c=>c.nombre.toLowerCase().includes(texto)
+c => c.categoria===categoria
 )
 );
 
 }
 
-function filtrar(cat){
-
-if(cat==="Todos"){
-renderCanales(canales);
-return;
 }
-
-renderCanales(
-canales.filter(
-c=>c.categoria===cat
-)
-);
-
-}
-
-window.onload=()=>{
 
 renderCanales(canales);
-
-let ultimo=
-localStorage.getItem("ultimoCanal");
-
-if(ultimo){
-
-cargarCanal(
-JSON.parse(ultimo)
-);
-
-}
-
-};
 
 </script>
+
+</body>
+</html>
